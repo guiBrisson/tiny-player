@@ -1,7 +1,11 @@
 package tiny_player
 
+import "api"
+import "core:fmt"
 import "core:log"
 import "core:os"
+import "core:strings"
+import lua "vendor:lua/5.4"
 import sdl "vendor:sdl2"
 import ttf "vendor:sdl2/ttf"
 
@@ -76,8 +80,8 @@ process_input :: proc() {
 }
 
 draw :: proc() {
-    sdl.RenderClear(ctx.renderer)
-    sdl.RenderPresent(ctx.renderer)
+	sdl.RenderClear(ctx.renderer)
+	sdl.RenderPresent(ctx.renderer)
 }
 
 main_loop :: proc() {
@@ -90,6 +94,18 @@ main_loop :: proc() {
 
 main :: proc() {
 	context.logger = log.create_console_logger()
+
+	L: ^lua.State = lua.L_newstate()
+	defer lua.close(L)
+
+	lua.L_openlibs(L)
+	api.load_libs(L)
+
+	code := "core.print_console('Hello from Lua!')"
+	if lua.L_dostring(L, strings.clone_to_cstring(code)) != 0 {
+		err := lua.tostring(L, -1)
+		fmt.println("Lua error:", strings.clone_from_cstring(err))
+	}
 
 	if res := init_sdl(); !res {
 		log.errorf("Initialization failed.")
