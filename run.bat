@@ -1,5 +1,7 @@
 @echo off
 set PATH=%CD%\lib;%PATH%
+set PROJECT_NAME=tiny-player
+set ODIN_FILE=src
 
 odin run src
 
