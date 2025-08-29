@@ -5,7 +5,6 @@ import "core:log"
 import "core:os"
 import lua "vendor:lua/5.4"
 import sdl "vendor:sdl2"
-import ttf "vendor:sdl2/ttf"
 
 
 App_Context :: struct {
@@ -23,10 +22,7 @@ init_ctx :: proc() -> App_Context {
 		os.exit(1)
 	}
 
-	if ttf_res := ttf.Init(); ttf_res < 0 {
-		log.errorf("ttf.Init return %v", ttf_res)
-		os.exit(1)
-	}
+	api.init_font_system()
 
 	dm: sdl.DisplayMode
 	sdl.GetCurrentDisplayMode(0, &dm)
@@ -65,7 +61,7 @@ init_ctx :: proc() -> App_Context {
 
 cleanup_ctx :: proc(ctx: ^App_Context) {
 	lua.close(ctx.lua)
-	ttf.Quit()
+	api.cleanup_font_system()
 	sdl.DestroyWindow(ctx.window)
 	sdl.Quit()
 }
