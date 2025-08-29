@@ -1,6 +1,6 @@
 package api
 
-import "core:c/libc"
+import "core:log"
 import "core:strings"
 import lua "vendor:lua/5.4"
 import sdl "vendor:sdl2"
@@ -20,7 +20,7 @@ load_libs :: proc(L: ^lua.State) {
 }
 
 lua_bootstrap :: proc(L: ^lua.State) {
-	// TODO: change the executable name
+	// TODO: the executable name will be different for linux (not have .exe, basically)
 	exename := "tiny-player.exe"
 	lua.pushstring(L, strings.clone_to_cstring(exename))
 	lua.setglobal(L, "EXEFILE")
@@ -36,12 +36,15 @@ xpcall(function()
 end, function(err)
     print("Lua error: "..tostring(err))
     print(debug.traceback(nil, 2))
+    if core and core.on_error then
+        pcall(core.on_error, err)
+    end
     os.exit(1)
 end)`
 
 
 	if lua.L_dostring(L, strings.clone_to_cstring(code)) != 0 {
 		err := lua.tostring(L, -1)
-		libc.printf("Lua bootstrap failed: %s", err)
+		log.errorf("Lua bootstrap failed: %s\n", err)
 	}
 }

@@ -77,24 +77,43 @@ process_input :: proc(ctx: ^App_Context) {
 		#partial switch (e.type) {
 		case .QUIT:
 			ctx.should_close = true
+		case .DROPFILE:
+			api.lua_dropfile(ctx.lua, e.drop.file)
 		case .KEYDOWN:
-			#partial switch (e.key.keysym.sym) {
-			case .ESCAPE:
-				ctx.should_close = true
-			}
+			api.lua_keydown(ctx.lua, e.key.keysym.sym)
+		case .MOUSEBUTTONDOWN:
+			api.lua_mousedown(ctx.lua, e.button.button, e.button.x, e.button.y)
+		case .MOUSEBUTTONUP:
+			api.lua_mouseup(ctx.lua, e.button.button, e.button.x, e.button.y)
 		}
 	}
 }
 
 draw :: proc(ctx: ^App_Context) {
+	sdl.SetRenderDrawColor(ctx.renderer, 0, 0, 0, 255)
 	sdl.RenderClear(ctx.renderer)
+	api.lua_draw(ctx.lua)
 	sdl.RenderPresent(ctx.renderer)
 }
 
+update :: proc(ctx: ^App_Context, dt: f64) {
+	api.lua_update(ctx.lua, dt)
+}
+
+
 main_loop :: proc(ctx: ^App_Context) {
+	lastFrameTick: u64
+	deltaTime: f64
+	performanceFrequency := sdl.GetPerformanceFrequency()
+
 	for !ctx.should_close {
+		currentFrameTicks := sdl.GetPerformanceCounter()
+
+		deltaTime := f64(currentFrameTicks - lastFrameTick) / f64(performanceFrequency)
+		lastFrameTick = currentFrameTicks
+
 		process_input(ctx)
-		//update(dt)
+		update(ctx, deltaTime)
 		draw(ctx)
 	}
 }

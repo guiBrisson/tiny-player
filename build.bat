@@ -10,8 +10,8 @@ set DATA_DIR=data
 set RELEASE_NAME=%PROJECT_NAME%.zip
 
 :: === Parse argument ===
-set ZIP_BUILD=false
-if /I "%1"=="release" set ZIP_BUILD=true
+set RELEASE=false
+if /I "%1"=="release" set RELEASE=true
 
 :: === Cleanup ===
 echo Cleaning up previous build...
@@ -21,7 +21,11 @@ if exist %RELEASE_NAME% del %RELEASE_NAME%
 :: === Build ===
 echo Building executable...
 mkdir %BUILD_DIR%
-odin build %ODIN_FILE% -vet -out:%BUILD_DIR%\%PROJECT_NAME%.exe
+if %RELEASE%==true (
+    odin build %ODIN_FILE% -subsystem:windows -vet -out:%BUILD_DIR%\%PROJECT_NAME%.exe    
+) else (
+    odin build %ODIN_FILE% -out:%BUILD_DIR%\%PROJECT_NAME%.exe
+)
 
 :: === Copy DLLs ===
 echo Copying DLLs...
@@ -32,7 +36,7 @@ echo Copying Lua scripts...
 xcopy %DATA_DIR% %BUILD_DIR%\%DATA_DIR% /E /I /Y >nul
 
 :: === Zip if requested ===
-if %ZIP_BUILD%==true (
+if %RELEASE%==true (
     echo Creating release archive...
     powershell -Command "Compress-Archive -Path '%BUILD_DIR%\*' -DestinationPath '%RELEASE_NAME%'"
     echo Done. Release archive created: %RELEASE_NAME%
