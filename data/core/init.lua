@@ -5,7 +5,8 @@ function core.load()
 end
 
 function core.draw()
-    
+    gfx.set_color(0, 255, 250, 255)
+    gfx.draw_rect(10, 10, 100, 100)
 end
 
 function core.update(dt)
@@ -26,7 +27,7 @@ function core.on_mouseup(button, x, y)
 end
 
 function core.on_dropfile(file)
-    print(file)
+    -- print(file)
 end
 
 function core.on_error()

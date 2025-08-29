@@ -100,7 +100,6 @@ update :: proc(ctx: ^App_Context, dt: f64) {
 	api.lua_update(ctx.lua, dt)
 }
 
-
 main_loop :: proc(ctx: ^App_Context) {
 	lastFrameTick: u64
 	deltaTime: f64
@@ -109,7 +108,7 @@ main_loop :: proc(ctx: ^App_Context) {
 	for !ctx.should_close {
 		currentFrameTicks := sdl.GetPerformanceCounter()
 
-		deltaTime := f64(currentFrameTicks - lastFrameTick) / f64(performanceFrequency)
+		deltaTime = f64(currentFrameTicks - lastFrameTick) / f64(performanceFrequency)
 		lastFrameTick = currentFrameTicks
 
 		process_input(ctx)
@@ -124,7 +123,7 @@ main :: proc() {
 	ctx: App_Context = init_ctx()
 	defer cleanup_ctx(&ctx)
 
-	api.set_sdl_window(ctx.window)
+	api.set_sdl_window_and_renderer(ctx.window, ctx.renderer)
 	api.lua_bootstrap(ctx.lua)
 
 	main_loop(&ctx)

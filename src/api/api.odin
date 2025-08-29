@@ -6,13 +6,15 @@ import lua "vendor:lua/5.4"
 import sdl "vendor:sdl2"
 
 window: ^sdl.Window
+renderer: ^sdl.Renderer
 
-set_sdl_window :: proc(w: ^sdl.Window) {
+set_sdl_window_and_renderer :: proc(w: ^sdl.Window, r: ^sdl.Renderer) {
 	window = w
+	renderer = r
 }
 
 load_libs :: proc(L: ^lua.State) {
-	libs: []lua.L_Reg = {{"system", lua_load_system}}
+	libs: []lua.L_Reg = {{"system", lua_load_system}, {"gfx", lua_load_gfx}}
 
 	for lib in libs {
 		lua.L_requiref(L, lib.name, lib.func, 1)
