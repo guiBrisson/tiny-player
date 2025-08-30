@@ -33,7 +33,7 @@ init_ctx :: proc() -> App_Context {
 		sdl.WINDOWPOS_UNDEFINED,
 		i32(f32(dm.w) * 0.6),
 		i32(f32(dm.h) * 0.6),
-		{.SHOWN, .RESIZABLE, .ALLOW_HIGHDPI},
+		{.HIDDEN, .RESIZABLE, .ALLOW_HIGHDPI},
 	)
 	if ctx.window == nil {
 		log.errorf("sdl.CreateWindow failed.")
