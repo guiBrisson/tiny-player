@@ -1,27 +1,36 @@
 local core = {}
 
+local Text = require 'data.core.Text'
+local color = require 'data.core.color'
+
+local theme = {"#272829", "#D8D9DA"}
+
 function core.load()
     system.show_window()
     FONT = gfx.load_font("data/assets/fonts/BoldPixels1.4.ttf", 28, "bold_pixels_24")
+    FPS = Text.new(FONT)
+end
+
+function core.update(dt)
+    local windowW, windowH = system.get_window_size()
+
+    local fps = string.format("FPS: %.1f", 1 / dt)
+    FPS:set_text(fps):set_position(windowW - FPS.width, 0)
 end
 
 function core.draw()
-    gfx.set_color(0, 255, 250, 255)
+    local r, g, b = color.hex_to_rgb(theme[1])
+    gfx.set_color(r, g, b, 255)
     gfx.draw_rect(10, 10, 100, 100)
 
     gfx.set_color(255, 255, 0, 255)
     gfx.draw_rect(120, 10, 100, 100, "line")
 
-    gfx.draw_text(FONT, "Hello, Mom!", 300, 100)
+    local red = { 255, 0, 0, 255 }
+    local hello_mom = Text.new(FONT, "Hello, mom", 300, 100, red)
 
-    local windowW, windowH = system.get_window_size()
-    local fpsW, fpsH = gfx.get_text_size(FONT, FPS)
-    gfx.draw_text_colored(FONT, FPS, windowW - fpsW, 0, 250, 250, 250, 120)
-end
-
-function core.update(dt)
-    FPS = string.format("FPS: %.1f", 1 / dt)
-    -- print("fps: " .. fps)
+    FPS:draw()
+    hello_mom:draw()
 end
 
 function core.on_keydown(key)
