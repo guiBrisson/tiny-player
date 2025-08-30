@@ -1,36 +1,30 @@
 local core = {}
 
-local Text = require 'data.core.Text'
-local color = require 'data.core.color'
-
-local theme = {"#272829", "#D8D9DA"}
+local ecs = require 'data.lib.tiny'
+local world
 
 function core.load()
-    system.show_window()
+    world = ecs.world()
     FONT = gfx.load_font("data/assets/fonts/BoldPixels1.4.ttf", 28, "bold_pixels_24")
-    FPS = Text.new(FONT)
+
+    local hello = require('data.core.entities.Text').new({
+        x = 10, y = 10,
+        font_id = FONT,
+        text = "Hello, World!",
+    })
+
+    world:addEntity(hello)
+    world:addSystem(require('data.core.systems.drawTextSystem'))
+
+    system.show_window()
 end
 
 function core.update(dt)
-    local windowW, windowH = system.get_window_size()
-
-    local fps = string.format("FPS: %.1f", 1 / dt)
-    FPS:set_text(fps):set_position(windowW - FPS.width, 0)
+    world:update(dt, ecs.rejectAny("drawSystem"))
 end
 
 function core.draw()
-    local r, g, b = color.hex_to_rgb(theme[1])
-    gfx.set_color(r, g, b, 255)
-    gfx.draw_rect(10, 10, 100, 100)
-
-    gfx.set_color(255, 255, 0, 255)
-    gfx.draw_rect(120, 10, 100, 100, "line")
-
-    local red = { 255, 0, 0, 255 }
-    local hello_mom = Text.new(FONT, "Hello, mom", 300, 100, red)
-
-    FPS:draw()
-    hello_mom:draw()
+    world:update(-1, ecs.requireAll("drawSystem"))
 end
 
 function core.on_keydown(key)
