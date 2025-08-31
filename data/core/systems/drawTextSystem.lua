@@ -22,14 +22,16 @@ function drawTextSystem:process(entity)
         text._changed = false
     end
 
-    local r, g, b, a = color.hex_to_rgba(text.color)
-    gfx.drawTextColored(
-        text.font_id,
-        text.text,
-        view.x,
-        view.y,
-        r, g, b, a
-    )
+    if view.visible then
+        local r, g, b, a = color.hex_to_rgba(text.color)
+        gfx.drawTextColored(
+            text.font_id,
+            text.text,
+            view.x,
+            view.y,
+            r, g, b, a
+        )
+    end
 end
 
 function drawTextSystem:onAdd(entity)

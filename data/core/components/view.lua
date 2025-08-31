@@ -14,7 +14,7 @@ function view.new(args)
         y = args.y or 0,
         width = args.width or 0,
         height = args.width or 0,
-        visible = args.visible or true,
+        visible = args.visible ~= false, -- default true
     }
 end
 

@@ -7,18 +7,30 @@ local world
 
 function core.load()
     world = ecs.world()
-    FONT = gfx.loadFont("data/assets/fonts/BoldPixels1.4.ttf", 18, "bold_pixels_24")
+    FONT = gfx.loadFont("data/assets/fonts/BoldPixels1.4.ttf", 28, "bold_pixels_24")
 
     Fps = require('data.core.entities.Text').new({
-        x = 10,
-        y = 10,
         font_id = FONT,
     })
 
+    Mom = require('data.core.entities.Text').new({
+        font_id = FONT,
+        text = "Hi, Mom!",
+    })
+
+    Container = require('data.core.entities.Container').new({
+        direction = require('data.core.entities.Container').Direction.COLUMN,
+        x = 10,
+        y = 10,
+        children = {Mom, Fps}
+    })
+
     world:addEntity(Fps)
-    local hoverSystem = require 'data.core.systems.hoverSystem'
-    world:addSystem(hoverSystem)
+    world:addEntity(Mom)
+    world:addEntity(Container)
     world:addSystem(require('data.core.systems.drawTextSystem'))
+    world:addSystem(require('data.core.systems.hoverSystem'))
+    world:addSystem(require('data.core.systems.containerSystem'))
 
     system.showWindow()
 end
@@ -29,7 +41,7 @@ function core.update(dt)
     local fps = 1 / dt
     Fps:set_text(string.format("FPS: %.2f", fps))
 
-    world:update(dt, ecs.rejectAny("drawSystem"))
+    world:update(dt, ecs.rejectAll("drawSystem"))
 end
 
 function core.draw()

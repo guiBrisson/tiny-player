@@ -8,7 +8,7 @@ function Text.new(args)
     local viewComponent = view.new({
         x = args.x,
         y = args.y,
-        visible = args.visible or true,
+        visible = args.visible,
     })
 
     local hoverComponent = hover.new(args.onHover)
