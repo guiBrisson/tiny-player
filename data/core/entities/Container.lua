@@ -50,6 +50,8 @@ function Container.new(args)
             },
             autoWidth = args.autoWidth or false,
             autoHeight = args.autoHeight or false,
+            fillWidth = args.fillWidth or false,
+            fillHeight = args.fillHeight or false,
             children = args.children or {},
         },
     }

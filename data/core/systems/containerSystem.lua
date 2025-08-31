@@ -2,7 +2,7 @@ local ecs = require 'data.lib.tiny'
 local Container = require 'data.core.entities.Container'
 
 local containerSystem = ecs.processingSystem()
-containerSystem.drawSystem = true
+containerSystem.drawSystem = false
 containerSystem.filter = ecs.requireAll("view", "container")
 
 local function positionChildren(entity)
@@ -102,6 +102,24 @@ end
 local function calculateLayout(entity)
     local container = entity.container
     local view = entity.view
+
+    -- Handle fillWidth and fillHeight before calculating child layout
+    if view._parent and view._parent.container then
+        local parent = view._parent
+        local parentContainer = parent.container
+        local parentContentWidth = parentContainer._layoutCache.contentWidth or
+            (parent.view.width - parentContainer.padding.left - parentContainer.padding.right)
+        local parentContentHeight = parentContainer._layoutCache.contentHeight or
+            (parent.view.height - parentContainer.padding.top - parentContainer.padding.bottom)
+
+        if container.fillWidth then
+            view.width = parentContentWidth
+        end
+        if container.fillHeight then
+            view.height = parentContentHeight
+        end
+    end
+
     if #container.children == 0 then
         if container.autoWidth then view.width = container.padding.left + container.padding.right end
         if container.autoHeight then view.height = container.padding.top + container.padding.bottom end
@@ -147,8 +165,8 @@ local function calculateLayout(entity)
     -- Cache the calculations
     container._layoutCache.childSizes = childSizes
 
-    -- Calculate auto-size if needed
-    if container.autoWidth then
+    -- Calculate auto-size if needed (only if not filling parent)
+    if container.autoWidth and not container.fillWidth then
         if isRow then
             view.width = totalMainSize + container.padding.left + container.padding.right
         else
@@ -157,7 +175,7 @@ local function calculateLayout(entity)
         contentWidth = view.width - container.padding.left - container.padding.right
     end
 
-    if container.autoHeight then
+    if container.autoHeight and not container.fillHeight then
         if isRow then
             view.height = maxCrossSize + container.padding.top + container.padding.bottom
         else
@@ -176,18 +194,32 @@ end
 
 function containerSystem:process(entity, dt)
     local view = entity.view
-    if false then -- change this to see the container bounds
+    local container = entity.container
+
+    calculateLayout(entity)
+
+    if DEBUG then -- change this to see the container bounds
         gfx.setColor(255, 255, 255, 255)
+
+        -- Draw the full container bounds (including padding)
+        gfx.drawRect(view.x, view.y, view.width, view.height, "line")
+
+        -- Draw the content area bounds (excluding padding)
+        gfx.setColor(255, 0, 0, 128)
         gfx.drawRect(
-            view.x, view.y,
-            view.width, view.height,
+            view.x + container.padding.left,
+            view.y + container.padding.top,
+            container._layoutCache.contentWidth,
+            container._layoutCache.contentHeight,
             "line"
         )
     end
-    calculateLayout(entity)
 end
 
 function containerSystem:onAdd(entity)
+    for _, child in ipairs(entity.container.children) do
+        child.view._parent = entity
+    end
     calculateLayout(entity)
 end
 
