@@ -8,7 +8,7 @@ drawTextSystem.drawSystem = true
 local function calculateTextSize(entity)
     local text = entity.text
     local view = entity.view
-    local w, h = gfx.get_text_size(text.font_id, text.text)
+    local w, h = gfx.getTextSize(text.font_id, text.text)
     view.width = w
     view.height = h
 end
@@ -23,7 +23,7 @@ function drawTextSystem:process(entity)
     end
 
     local r, g, b, a = color.hex_to_rgba(text.color)
-    gfx.draw_text_colored(
+    gfx.drawTextColored(
         text.font_id,
         text.text,
         view.x,

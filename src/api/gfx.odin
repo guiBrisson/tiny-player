@@ -132,13 +132,13 @@ lua_load_gfx :: proc "c" (L: ^lua.State) -> i32 {
 	context = runtime.default_context()
 
 	lib: []lua.L_Reg = {
-		{"draw_rect", lua_draw_rect},
-		{"set_color", lua_set_color},
-		{"load_font", lua_load_font},
-		{"draw_text", lua_draw_text},
-		{"draw_text_colored", lua_draw_text_colored},
-		{"get_text_size", lua_get_text_size},
-		{"set_text_color", lua_set_text_color},
+		{"drawRect", lua_draw_rect},
+		{"setColor", lua_set_color},
+		{"loadFont", lua_load_font},
+		{"drawText", lua_draw_text},
+		{"drawTextColored", lua_draw_text_colored},
+		{"getTextSize", lua_get_text_size},
+		{"setTextColor", lua_set_text_color},
 	}
 
 	lua.L_newlib(L, lib)

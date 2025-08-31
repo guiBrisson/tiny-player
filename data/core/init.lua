@@ -7,7 +7,7 @@ local world
 
 function core.load()
     world = ecs.world()
-    FONT = gfx.load_font("data/assets/fonts/BoldPixels1.4.ttf", 18, "bold_pixels_24")
+    FONT = gfx.loadFont("data/assets/fonts/BoldPixels1.4.ttf", 18, "bold_pixels_24")
 
     Fps = require('data.core.entities.Text').new({
         x = 10,
@@ -16,15 +16,15 @@ function core.load()
     })
 
     world:addEntity(Fps)
-    local hoverSystem = require 'data.core.systems.system'
+    local hoverSystem = require 'data.core.systems.hoverSystem'
     world:addSystem(hoverSystem)
     world:addSystem(require('data.core.systems.drawTextSystem'))
 
-    system.show_window()
+    system.showWindow()
 end
 
 function core.update(dt)
-    Mouse.x, Mouse.y = system.get_mouse_state()
+    Mouse.x, Mouse.y = system.getMouseState()
 
     local fps = 1 / dt
     Fps:set_text(string.format("FPS: %.2f", fps))

@@ -8,7 +8,7 @@ function hoverSystem:process(entity, _)
     local hover = entity.hover
 
     local mouseInBounds = Mouse.x >= view.x and Mouse.x <= view.x + view.width and
-        Mouse.y >= view.y and Mouse.y + view.y + view.height
+        Mouse.y >= view.y and Mouse.y <= view.y + view.height
 
     hover.isHovered = mouseInBounds
 

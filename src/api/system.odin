@@ -41,10 +41,10 @@ lua_load_system :: proc "c" (L: ^lua.State) -> i32 {
 	context = runtime.default_context()
 
 	lib: []lua.L_Reg = {
-		{"set_window_title", lua_set_window_title},
-		{"get_window_size", lua_get_window_size},
-		{"show_window", lua_show_window},
-		{"get_mouse_state", lua_get_mouse_state},
+		{"setWindowTitle", lua_set_window_title},
+		{"getWindowSize", lua_get_window_size},
+		{"showWindow", lua_show_window},
+		{"getMouseState", lua_get_mouse_state},
 	}
 
 	lua.L_newlib(L, lib)
