@@ -1,17 +1,21 @@
 local view = require "data.core.components.view"
+local hover = require "data.core.components.hover"
 
 local Text = {}
 Text.__index = Text
 
 function Text.new(args)
-    local view_component = view.new({
+    local viewComponent = view.new({
         x = args.x,
         y = args.y,
         visible = args.visible or true,
     })
 
+    local hoverComponent = hover.new(args.onHover)
+
     local text = {
-        view = view_component,
+        view = viewComponent,
+        hover = hoverComponent,
         text = {
             font_id = args.font_id,
             color = args.color or "#FFFFFFFF", --defaults to white

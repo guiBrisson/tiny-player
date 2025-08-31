@@ -27,6 +27,16 @@ lua_show_window :: proc "c" (L: ^lua.State) -> i32 {
 	return 0
 }
 
+@(private)
+lua_get_mouse_state :: proc "c" (L: ^lua.State) -> i32 {
+	x, y: i32
+	sdl.GetMouseState(&x, &y)
+
+	lua.pushinteger(L, lua.Integer(x))
+	lua.pushinteger(L, lua.Integer(y))
+	return 2
+}
+
 lua_load_system :: proc "c" (L: ^lua.State) -> i32 {
 	context = runtime.default_context()
 
@@ -34,6 +44,7 @@ lua_load_system :: proc "c" (L: ^lua.State) -> i32 {
 		{"set_window_title", lua_set_window_title},
 		{"get_window_size", lua_get_window_size},
 		{"show_window", lua_show_window},
+		{"get_mouse_state", lua_get_mouse_state},
 	}
 
 	lua.L_newlib(L, lib)
