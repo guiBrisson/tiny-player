@@ -1,7 +1,7 @@
 local hover = {}
 
 function hover.new(onHover)
-    return {
+    return onHover and {
         isHovered = false,
         onHover = onHover,
     }

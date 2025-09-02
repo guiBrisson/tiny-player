@@ -7,7 +7,7 @@ local color = {}
 ---@return integer g 
 ---@return integer b
 ---@return integer a
-function color.hex_to_rgba(hex)
+function color.hexToRgba(hex)
     local hex = string.gsub(hex, "#", "")
 
     local a = tonumber(hex:sub(1, 2), 16)

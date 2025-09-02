@@ -1,5 +1,5 @@
-local view = require "data.core.components.view"
-local hover = require "data.core.components.hover"
+local view = require "data.core.ui.components.view"
+local hover = require "data.core.ui.components.hover"
 
 local Text = {}
 Text.__index = Text
@@ -26,7 +26,7 @@ function Text.new(args)
 end
 
 ---@param text string
-function Text:set_text(text)
+function Text:setText(text)
     self.text.text = text
     self.text._changed = true
 end

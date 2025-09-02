@@ -23,7 +23,7 @@ function drawTextSystem:process(entity)
     end
 
     if view.visible then
-        local r, g, b, a = color.hex_to_rgba(text.color)
+        local r, g, b, a = color.hexToRgba(text.color)
         gfx.drawTextColored(
             text.font_id,
             text.text,

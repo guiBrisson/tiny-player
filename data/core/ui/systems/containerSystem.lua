@@ -1,9 +1,9 @@
 local ecs = require 'data.lib.tiny'
-local Container = require 'data.core.entities.Container'
+local Container = require 'data.core.ui.entities.Container'
 
 local containerSystem = ecs.processingSystem()
-containerSystem.drawSystem = false
 containerSystem.filter = ecs.requireAll("view", "container")
+containerSystem.drawSystem = false
 
 local function positionChildren(entity)
     local container = entity.container
@@ -99,6 +99,37 @@ local function positionChildren(entity)
     end
 end
 
+local function calculateAvailableSpace(entity, parent, isWidth)
+    local parentContainer = parent.container
+    local totalParentSpace = isWidth and
+        (parent.view.width - parentContainer.padding.left - parentContainer.padding.right) or
+        (parent.view.height - parentContainer.padding.top - parentContainer.padding.bottom)
+
+    local isParentRow = parentContainer.direction == Container.Direction.ROW
+    local spaceUsedBySiblings = 0
+    local gapCount = 0
+
+    -- Calculate space used by siblings
+    for i, child in ipairs(parentContainer.children) do
+        if child ~= entity and child.view.visible then
+            local childSize
+            if (isWidth and isParentRow) or (not isWidth and not isParentRow) then
+                -- Main axis - this child affects the space calculation
+                childSize = isWidth and child.view.width or child.view.height
+                spaceUsedBySiblings = spaceUsedBySiblings + childSize
+                gapCount = gapCount + 1
+            end
+        end
+    end
+
+    -- Add gaps between siblings
+    if gapCount > 0 then
+        spaceUsedBySiblings = spaceUsedBySiblings + (gapCount * parentContainer.gap)
+    end
+
+    return totalParentSpace - spaceUsedBySiblings
+end
+
 local function calculateLayout(entity)
     local container = entity.container
     local view = entity.view
@@ -106,17 +137,22 @@ local function calculateLayout(entity)
     -- Handle fillWidth and fillHeight before calculating child layout
     if view._parent and view._parent.container then
         local parent = view._parent
-        local parentContainer = parent.container
-        local parentContentWidth = parentContainer._layoutCache.contentWidth or
-            (parent.view.width - parentContainer.padding.left - parentContainer.padding.right)
-        local parentContentHeight = parentContainer._layoutCache.contentHeight or
-            (parent.view.height - parentContainer.padding.top - parentContainer.padding.bottom)
+        -- local parentContainer = parent.container
+        -- local parentContentWidth = parentContainer._layoutCache.contentWidth or
+        --     (parent.view.width - parentContainer.padding.left - parentContainer.padding.right)
+        -- local parentContentHeight = parentContainer._layoutCache.contentHeight or
+        --     (parent.view.height - parentContainer.padding.top - parentContainer.padding.bottom)
 
         if container.fillWidth then
-            view.width = parentContentWidth
+            -- Calculate available width by subtracting space used by siblings
+            local availableWidth = calculateAvailableSpace(entity, parent, true) -- true = width
+            view.width = math.max(0, availableWidth)
         end
+
         if container.fillHeight then
-            view.height = parentContentHeight
+            -- Calculate available height by subtracting space used by siblings
+            local availableHeight = calculateAvailableSpace(entity, parent, false) -- false = height
+            view.height = math.max(0, availableHeight)
         end
     end
 
@@ -204,7 +240,7 @@ function containerSystem:process(entity, dt)
         -- Draw the full container bounds (including padding)
         gfx.drawRect(view.x, view.y, view.width, view.height, "line")
 
-        -- Draw the content area bounds (excluding padding)
+        -- Draw the content area bounds (excluding padding) in a different color
         gfx.setColor(255, 0, 0, 128)
         gfx.drawRect(
             view.x + container.padding.left,

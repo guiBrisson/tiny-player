@@ -4,16 +4,23 @@ Window = { width = 0, height = 0 }
 
 local core = {}
 
-local ecs = require 'data.lib.tiny'
-local Container = require 'data.core.entities.Container'
-local Text = require 'data.core.entities.Text'
-local world
+local Container = require 'data.core.ui.entities.Container'
+local Text = require 'data.core.ui.entities.Text'
+local Ui = require 'data.core.ui'
+
+local UI
+
+local theme = {
+    fonts = {
+        small = gfx.loadFont("data/assets/fonts/BoldPixels1.4.ttf", 16, "bold_pixels_16"),
+        normal = gfx.loadFont("data/assets/fonts/BoldPixels1.4.ttf", 20, "bold_pixels_20"),
+        large = gfx.loadFont("data/assets/fonts/BoldPixels1.4.ttf", 24, "bold_pixels_24"),
+    },
+    colors = { light = "#ff272829", dark = "#ffD8D9DA" }
+}
 
 function core.load()
-    world = ecs.world()
-    FONT = gfx.loadFont("data/assets/fonts/BoldPixels1.4.ttf", 18, "bold_pixels_24")
-
-    Fps = Text.new({ font_id = FONT })
+    Fps = Text.new({ font_id = theme.fonts.small })
 
     local container = Container.new({
         direction = Container.Direction.COLUMN,
@@ -23,21 +30,28 @@ function core.load()
         children = { Fps },
     })
 
+    local container2 = Container.new({
+        direction = Container.Direction.COLUMN,
+        alignItems = Container.AlignItems.FLEX_START,
+        fillWidth = true,
+        fillHeight = true,
+        padding = 10,
+        children = {
+            Text.new({ font_id = theme.fonts.normal, text = "Hello, World!" }),
+            Text.new({ font_id = theme.fonts.normal, text = "Hello, Mom!" })
+        }
+    })
+
     BaseContainer = Container.new({
         direction = Container.Direction.COLUMN,
         justifyContent = Container.JustifyContent.FLEX_START,
-        alignItems = Container.AlignItems.FLEX_END,
-        width = Window.width,
-        height = Window.height,
-        children = { container },
+        alignItems = Container.AlignItems.FLEX_START,
+        width = 0,
+        height = 0,
+        children = { container, container2 },
     })
 
-    world:addEntity(BaseContainer)
-    world:addEntity(Fps)
-    world:addEntity(container)
-    world:addSystem(require('data.core.systems.drawTextSystem'))
-    world:addSystem(require('data.core.systems.hoverSystem'))
-    world:addSystem(require('data.core.systems.containerSystem'))
+    UI = Ui.load({ views = { BaseContainer } })
 
     system.showWindow()
 end
@@ -46,17 +60,19 @@ function core.update(dt)
     Mouse.x, Mouse.y = system.getMouseState()
     Window.width, Window.height = system.getWindowSize()
 
-    local fps = 1 / dt
-    Fps:set_text(string.format("FPS: %.2f", fps))
-
     BaseContainer.view.width = Window.width
     BaseContainer.view.height = Window.height
 
-    world:update(dt, ecs.rejectAny("drawSystem"))
+    local fps = 1 / dt
+    Fps:setText(string.format("FPS: %.2f", fps))
+
+    UI:update(dt)
 end
 
 function core.draw()
-    world:update(-1, ecs.requireAll("drawSystem"))
+    local r, g, b, a = require('data.core.color').hexToRgba(theme.colors.dark)
+    gfx.setColor(r, g, b, a)
+    UI:draw()
 end
 
 function core.on_keydown(key)

@@ -1,5 +1,5 @@
-local view = require "data.core.components.view"
-local hover = require "data.core.components.hover"
+local view = require "data.core.ui.components.view"
+local hover = require "data.core.ui.components.hover"
 
 local Container = {}
 Container.__index = Container
